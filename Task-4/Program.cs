@@ -42,6 +42,11 @@ namespace Task_4
             Console.WriteLine(a!=b);
             Console.WriteLine(b > a && c==a/2);
 
+            byte number = 255;
+
+            number += 2;
+
+            Console.WriteLine(number);
         }
     }
 }
