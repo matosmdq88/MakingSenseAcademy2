@@ -21,6 +21,14 @@ namespace Task_6
             {
                 Console.WriteLine("the colour is: "+stringArray[a]);
             }
+
+            var city = "Mar del Plata";
+            var state = "Buenos Aires";
+            var country = "Argentina";
+
+            var location = string.Join(",",city,state,country);
+
+            Console.WriteLine(location);
         }
     }
 }
