@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 0,
+    "Model": "punto",
+    "Doors": 5,
+    "Mark": 0,
+    "Color": "Blue",
+    "Transmition": 1
+  },
+  {
+    "Id": 1,
+    "Model": "taunus",
+    "Doors": 5,
+    "Mark": 1,
+    "Color": "Green",
+    "Transmition": 1
+  }
+]
