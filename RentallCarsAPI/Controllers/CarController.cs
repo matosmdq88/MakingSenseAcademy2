@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using RentallCarsAPI.Models.Response;
 using RentallCarsAPI.Models;
 using RentallCarsAPI.Models.Request;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace RentallCarsAPI.Controllers
@@ -20,11 +18,11 @@ namespace RentallCarsAPI.Controllers
         [HttpPost]
         public IActionResult Create(CarRequest model)
         {
-            Response oResponse = new Response();
+            var oResponse = new Response();
             try
             {
                 var cars = GetAll();
-                foreach (Car aux in cars) 
+                foreach (var aux in cars) 
                 {
                     if (model.Id == aux.Id)
                     {
@@ -34,7 +32,7 @@ namespace RentallCarsAPI.Controllers
                 }
                 if (((int)model.Mark >= 0 && (int)model.Mark <= 5) && ((int)model.Transmition >= 0 && (int)model.Transmition <= 1))
                 {
-                    Car oCar = new Car();
+                    var oCar = new Car();
                     oCar.Id = model.Id;
                     oCar.Transmition = model.Transmition;
                     oCar.Mark = model.Mark;
@@ -42,7 +40,7 @@ namespace RentallCarsAPI.Controllers
                     oCar.Doors = model.Doors;
                     oCar.Color = model.Color;
                     cars.Add(oCar);
-                    string writer = JsonConvert.SerializeObject(cars,Formatting.Indented);
+                    var writer = JsonConvert.SerializeObject(cars,Formatting.Indented);
                     System.IO.File.WriteAllText("cars.txt", writer);
                     oResponse.Succes = true;
                     oResponse.Data = writer;
@@ -60,6 +58,35 @@ namespace RentallCarsAPI.Controllers
             return Ok(oResponse);
 
         }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var oResponse = new Response();
+
+            try
+            {
+                var cars = GetAll();
+                foreach (var aux in cars)
+                {
+                    if (aux.Id == id)
+                    {
+                        oResponse.Succes = true;
+                        oResponse.Data = aux;
+                        oResponse.Message = "Found successfully";
+                        return Ok(oResponse);
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                oResponse.Message = "Serch error";
+            }
+
+            return Ok(oResponse);
+        }
+
 
         private List<Car> GetAll() {
             var cars = new List<Car>();
