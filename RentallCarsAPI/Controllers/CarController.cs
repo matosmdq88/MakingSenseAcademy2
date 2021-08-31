@@ -126,6 +126,43 @@ namespace RentallCarsAPI.Controllers
             return Ok(response);
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var response = new Response();
+
+            var cars = GetAll();
+            if (cars == null)
+            {
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            foreach (var aux in cars)
+            {
+                if (aux.Id == id)
+                {
+                    cars.Remove(aux);
+                    try
+                    {
+                        var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                        System.IO.File.WriteAllText("cars.txt", writer);
+                        response.Succes = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.Message = "Impossible to Delete";
+                        return BadRequest(response);
+                    }
+                    response.Succes = true;
+                    response.Data = aux;
+                    response.Message = "Delete successfully";
+                    return Ok(response);
+                }
+            }
+            response.Message = $"Car with id: {id} not found";
+            return NotFound(response);
+        }
+
         private bool ValidateParams(CarRequest model)
         {
             bool flag = false;

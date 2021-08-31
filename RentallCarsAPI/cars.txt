@@ -38,13 +38,5 @@
     "Mark": 1,
     "Color": "light blue",
     "Transmition": 0
-  },
-  {
-    "Id": 8,
-    "Model": "transit",
-    "Doors": 4,
-    "Mark": 1,
-    "Color": "white",
-    "Transmition": 0
   }
 ]
