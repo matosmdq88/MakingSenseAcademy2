@@ -14,5 +14,45 @@
     "Mark": 1,
     "Color": "Green",
     "Transmition": 1
+  },
+  {
+    "Id": 2,
+    "Model": "Gol",
+    "Doors": 5,
+    "Mark": 5,
+    "Color": "black",
+    "Transmition": 1
+  },
+  {
+    "Id": 3,
+    "Model": "Gol trend",
+    "Doors": 5,
+    "Mark": 5,
+    "Color": "grey",
+    "Transmition": 1
+  },
+  {
+    "Id": 4,
+    "Model": "Fiesta kinetic",
+    "Doors": 5,
+    "Mark": 1,
+    "Color": "light blue",
+    "Transmition": 0
+  },
+  {
+    "Id": 6,
+    "Model": "ford focus",
+    "Doors": 5,
+    "Mark": 1,
+    "Color": "green",
+    "Transmition": 1
+  },
+  {
+    "Id": 5,
+    "Model": "ford focus",
+    "Doors": 5,
+    "Mark": 1,
+    "Color": "green",
+    "Transmition": 1
   }
 ]
