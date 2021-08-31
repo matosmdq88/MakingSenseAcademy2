@@ -1,13 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RentallCarsAPI.Models.Response;
+using Newtonsoft.Json;
 using RentallCarsAPI.Models;
 using RentallCarsAPI.Models.Request;
-using Newtonsoft.Json;
+using RentallCarsAPI.Models.Response;
 
 namespace RentallCarsAPI.Controllers
 {
@@ -18,120 +16,67 @@ namespace RentallCarsAPI.Controllers
         [HttpPost]
         public IActionResult Create(CarRequest model)
         {
-            var oResponse = new Response();
+            var response = new Response();
            
             var cars = GetAll();
             if (cars == null)
             {
-                oResponse.Message = "File reading failed";
-                return BadRequest(oResponse);
+                response.Message = "File reading failed";
+                return BadRequest(response);
             }
-            if (ValidateParams(model))
+            if (!ValidateParams(model))
             {
-                var oCar = new Car();
-                oCar.Id = ++cars.Last().Id;
-                oCar.Transmition = model.Transmition;
-                oCar.Mark = model.Mark;
-                oCar.Model = model.Model;
-                oCar.Doors = model.Doors;
-                oCar.Color = model.Color;
-                cars.Add(oCar);
-                try
-                {
-                    var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                    System.IO.File.WriteAllText("cars.txt", writer);
-                    oResponse.Succes = true;
-                    oResponse.Data = oCar;
-                }
-                catch (Exception ex)
-                {
-                    oResponse.Message = "Impossible to add";
-                }
+                response.Message = "Invalid Transmition or Mark";
+                return BadRequest(response);
             }
-            else
+            var car = new Car();
+            car.Id = ++cars.Last().Id;
+            car.Id = ++cars.Last().Id;
+            car.Transmition = model.Transmition;
+            car.Mark = model.Mark;
+            car.Model = model.Model;
+            car.Doors = model.Doors;
+            car.Color = model.Color;
+            cars.Add(car);
+            try
             {
-                oResponse.Message = "Invalid Transmition or Mark";
+                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                System.IO.File.WriteAllText("cars.txt", writer);
+                response.Succes = true;
+                response.Data = car;
             }
-
-            return Ok(oResponse);
-
+            catch (Exception ex)
+            {
+                response.Message = "Impossible to add";
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var oResponse = new Response();
-
-            try
+            var response = new Response();
+             
+            var cars = GetAll();
+            if (cars == null)
             {
-                var cars = GetAll();
-                if (cars == null)
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            foreach (var aux in cars)
+            {
+                if (aux.Id == id)
                 {
-                    oResponse.Message = "File reading failed";
-                    return BadRequest(oResponse);
+                    response.Succes = true;
+                    response.Data = aux;
+                    response.Message = "Found successfully";
+                    return Ok(response);
                 }
-                foreach (var aux in cars)
-                {
-                    if (aux.Id == id)
-                    {
-                        oResponse.Succes = true;
-                        oResponse.Data = aux;
-                        oResponse.Message = "Found successfully";
-                        return Ok(oResponse);
-                    }
-                }                
             }
-            catch (Exception ex)
-            {
-                oResponse.Message = "Serch error";
-            }
-
-            return Ok(oResponse);
+            response.Message = $"Car with id: {id} not found";
+            return NotFound(response);
         }
-
-        /*[HttpPut]
-        public IActionResult Update(CarRequest model)
-        {
-            var oResponse = new Response();
-            try
-            {
-                var cars = GetAll();
-                foreach (var aux in cars)
-                {
-                    if (model.Id == aux.Id)
-                    {
-                        oResponse.Message = "Invalid Id, it´s used";
-                        return Ok(oResponse);
-                    }
-                }
-                if (ValidateParams(model))
-                {
-                    var oCar = new Car();
-                    oCar.Id = model.Id;
-                    oCar.Transmition = model.Transmition;
-                    oCar.Mark = model.Mark;
-                    oCar.Model = model.Model;
-                    oCar.Doors = model.Doors;
-                    oCar.Color = model.Color;
-                    cars.Add(oCar);
-                    var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                    System.IO.File.WriteAllText("cars.txt", writer);
-                    oResponse.Succes = true;
-                    oResponse.Data = oCar;
-                }
-                else
-                {
-                    oResponse.Message = "Invalid Transmition or Mark";
-                }
-            }
-            catch (Exception ex)
-            {
-                oResponse.Message = "Impossible to add";
-            }
-
-            return Ok(oResponse);
-
-        }*/
 
         private bool ValidateParams(CarRequest model)
         {
