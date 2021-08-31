@@ -31,7 +31,6 @@ namespace RentallCarsAPI.Controllers
             }
             var car = new Car();
             car.Id = ++cars.Last().Id;
-            car.Id = ++cars.Last().Id;
             car.Transmition = model.Transmition;
             car.Mark = model.Mark;
             car.Model = model.Model;
@@ -44,6 +43,7 @@ namespace RentallCarsAPI.Controllers
                 System.IO.File.WriteAllText("cars.txt", writer);
                 response.Succes = true;
                 response.Data = car;
+                response.Message = "Successfully added";
             }
             catch (Exception ex)
             {
@@ -76,6 +76,54 @@ namespace RentallCarsAPI.Controllers
             }
             response.Message = $"Car with id: {id} not found";
             return NotFound(response);
+        }
+
+        [HttpPut]
+        public IActionResult Update(CarRequest model)
+        {
+            var response = new Response();
+
+            var cars = GetAll();
+            if (cars == null)
+            {
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            if (!ValidateParams(model))
+            {
+                response.Message = "Invalid Transmition or Mark";
+                return BadRequest(response);
+            }
+
+            foreach (var car in cars)
+            {
+                if (car.Id == model.Id)
+                {
+                    car.Id = model.Id;
+                    car.Transmition = model.Transmition;
+                    car.Mark = model.Mark;
+                    car.Model = model.Model;
+                    car.Doors = model.Doors;
+                    car.Color = model.Color;
+                    response.Data = car;
+                    break;
+                }
+            }
+                       
+
+            try
+            {
+                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                System.IO.File.WriteAllText("cars.txt", writer);
+                response.Succes = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Impossible to Update";
+                return BadRequest(response);
+            }
+            response.Message = "Successfully updated";
+            return Ok(response);
         }
 
         private bool ValidateParams(CarRequest model)
