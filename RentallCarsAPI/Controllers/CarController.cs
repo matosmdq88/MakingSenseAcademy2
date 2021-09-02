@@ -13,34 +13,38 @@ namespace RentallCarsAPI.Controllers
     [ApiController]
     public class CarController : Controller
     {
+        private readonly 
+        private const string _path = "cars.txt";
         [HttpPost]
         public IActionResult Create(CarRequest model)
         {
-            var response = new Response();
-           
+            var response = new Response();           
             var cars = GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            if (!ValidateParams(model))
+            var invalidParamsMessage = ValidateParams(model);
+            if (invalidParamsMessage != string.Empty)
             {
-                response.Message = "Invalid Transmition or Mark";
+                response.Message = invalidParamsMessage;
                 return BadRequest(response);
             }
-            var car = new Car();
-            car.Id = ++cars.Last().Id;
-            car.Transmition = model.Transmition;
-            car.Mark = model.Mark;
-            car.Model = model.Model;
-            car.Doors = model.Doors;
-            car.Color = model.Color;
-            cars.Add(car);
-            try
+            var car = new Car
             {
-                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                System.IO.File.WriteAllText("cars.txt", writer);
+                Id = Guid.NewGuid(),
+                Transmition = model.Transmition,
+                Mark = model.Mark,
+                Model = model.Model,
+                Doors = model.Doors,
+                Color = model.Color,
+            };
+            cars.Add(car);
+            var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+            try 
+            {
+                System.IO.File.WriteAllText(_path, writer);
                 response.Succes = true;
                 response.Data = car;
                 response.Message = "Successfully added";
@@ -54,22 +58,22 @@ namespace RentallCarsAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public IActionResult Get(Guid id)
         {
             var response = new Response();
-             
+            
             var cars = GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            foreach (var aux in cars)
+            foreach (var car in cars)
             {
-                if (aux.Id == id)
+                if (car.Id == id)
                 {
                     response.Succes = true;
-                    response.Data = aux;
+                    response.Data = car;
                     response.Message = "Found successfully";
                     return Ok(response);
                 }
@@ -89,10 +93,16 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            if (!ValidateParams(model))
+            var invalidParamsMessage = ValidateParams(model);
+            if (invalidParamsMessage != string.Empty)
             {
-                response.Message = "Invalid Transmition or Mark";
+                response.Message = invalidParamsMessage;
                 return BadRequest(response);
+            }
+            if (!cars.Any(car => car.Id == model.Id))
+            {
+                response.Message=$"Car with id {model.Id}not found";
+                return NotFound(response);
             }
 
             foreach (var car in cars)
@@ -109,12 +119,11 @@ namespace RentallCarsAPI.Controllers
                     break;
                 }
             }
-                       
-
+                      
             try
             {
                 var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                System.IO.File.WriteAllText("cars.txt", writer);
+                System.IO.File.WriteAllText(_path, writer);
                 response.Succes = true;
             }
             catch (Exception ex)
@@ -127,7 +136,7 @@ namespace RentallCarsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(Guid id)
         {
             var response = new Response();
 
@@ -145,7 +154,7 @@ namespace RentallCarsAPI.Controllers
                     try
                     {
                         var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                        System.IO.File.WriteAllText("cars.txt", writer);
+                        System.IO.File.WriteAllText(_path, writer);
                         response.Succes = true;
                     }
                     catch (Exception ex)
@@ -163,30 +172,37 @@ namespace RentallCarsAPI.Controllers
             return NotFound(response);
         }
 
-        private bool ValidateParams(CarRequest model)
+        private string ValidateParams(CarRequest model)
         {
-            bool flag = false;
-            if ((int)model.Mark >= 0 && (int)model.Mark <= 5)
+            if (!Enum.IsDefined(typeof(EnumTransmition), model.Transmition))
             {
-                if((int)model.Transmition >= 0 && (int)model.Transmition <= 1)
-                {
-                    flag = true;
-                }                    
-            }    
-            return flag;
+                return "Invalid transmition";
+            }
+            if (!Enum.IsDefined(typeof(EnumMark), model.Mark))
+            {
+                return "Invalid mark";
+            }
+            return string.Empty;
         }
-        private List<Car> GetAll() {
+        private List<Car> GetAll()
+        {
             var cars = new List<Car>();
+            if (!System.IO.File.Exists(_path))
+            {
+                return cars;
+            }
             try
             {
-                string list = System.IO.File.ReadAllText("cars.txt");
-                cars = JsonConvert.DeserializeObject<List<Car>>(list);
+                var list = System.IO.File.ReadAllText(_path);
+                if (list == "")
+                    return cars;
+                else
+                    return JsonConvert.DeserializeObject<List<Car>>(list); 
             }
             catch (Exception ex)
             {
                 return null;
             }
-            return cars;
         }
     }
 }

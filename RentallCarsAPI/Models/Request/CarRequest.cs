@@ -1,8 +1,10 @@
-﻿namespace RentallCarsAPI.Models.Request
+﻿using System;
+
+namespace RentallCarsAPI.Models.Request
 {
     public class CarRequest
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Model { get; set; }
         public int Doors { get; set; }
         public EnumMark Mark { get; set; }

@@ -1,8 +1,10 @@
-﻿namespace RentallCarsAPI.Models
+﻿using System;
+
+namespace RentallCarsAPI.Models
 {
     public class Car
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Model{ get; set; }
         public int Doors { get; set; }
         public EnumMark Mark { get; set; }
