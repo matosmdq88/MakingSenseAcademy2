@@ -1,13 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RentallCarsAPI.Models.Response;
+using Newtonsoft.Json;
 using RentallCarsAPI.Models;
 using RentallCarsAPI.Models.Request;
-using Newtonsoft.Json;
+using RentallCarsAPI.Models.Response;
+using RentallCarsAPI.Tools;
+using RentallCarsAPI.Tools.Interfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace RentallCarsAPI.Controllers
 {
@@ -15,91 +17,170 @@ namespace RentallCarsAPI.Controllers
     [ApiController]
     public class CarController : Controller
     {
+        private readonly ICrudHelper _crudHelper;
+        private readonly IConfiguration _configuration;
+
+        public CarController(ICrudHelper iCrudHelper, IConfiguration iconfiguration)
+        {
+            _crudHelper = iCrudHelper;
+            _configuration = iconfiguration;
+        }
+
         [HttpPost]
         public IActionResult Create(CarRequest model)
         {
-            var oResponse = new Response();
-            try
+            var response = new Response();
+            var cars = _crudHelper.GetAll();
+            if (cars == null)
             {
-                var cars = GetAll();
-                foreach (var aux in cars) 
-                {
-                    if (model.Id == aux.Id)
-                    {
-                        oResponse.Message = "Invalid Id, it´s used";
-                        return Ok(oResponse);
-                    }
-                }
-                if (((int)model.Mark >= 0 && (int)model.Mark <= 5) && ((int)model.Transmition >= 0 && (int)model.Transmition <= 1))
-                {
-                    var oCar = new Car();
-                    oCar.Id = model.Id;
-                    oCar.Transmition = model.Transmition;
-                    oCar.Mark = model.Mark;
-                    oCar.Model = model.Model;
-                    oCar.Doors = model.Doors;
-                    oCar.Color = model.Color;
-                    cars.Add(oCar);
-                    var writer = JsonConvert.SerializeObject(cars,Formatting.Indented);
-                    System.IO.File.WriteAllText("cars.txt", writer);
-                    oResponse.Succes = true;
-                    oResponse.Data = writer;
-                }
-                else 
-                {
-                    oResponse.Message = "Invalid Transmition or Mark";
-                }
+                response.Message = "File reading failed";
+                return BadRequest(response);
             }
-            catch(Exception ex)
+            var invalidParamsMessage = _crudHelper.ValidateParams(model);
+            if (invalidParamsMessage != string.Empty)
             {
-                oResponse.Message = "Impossible to add";
+                response.Message = invalidParamsMessage;
+                return BadRequest(response);
             }
-
-            return Ok(oResponse);
-
+            var car = new Car
+            {
+                Id = Guid.NewGuid(),
+                Transmition = model.Transmition,
+                Mark = model.Mark,
+                Model = model.Model,
+                Doors = model.Doors,
+                Color = model.Color,
+            };
+            cars.Add(car);
+            var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+            try 
+            {
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                response.Succes = true;
+                response.Data = car;
+                response.Message = "Successfully added";
+            }
+            catch (Exception ex)
+            {
+                response.Message = "Impossible to add";
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public IActionResult Get(Guid id)
         {
-            var oResponse = new Response();
-
-            try
+            var response = new Response();
+            
+            var cars = _crudHelper.GetAll();
+            if (cars == null)
             {
-                var cars = GetAll();
-                foreach (var aux in cars)
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            foreach (var car in cars)
+            {
+                if (car.Id == id)
                 {
-                    if (aux.Id == id)
-                    {
-                        oResponse.Succes = true;
-                        oResponse.Data = aux;
-                        oResponse.Message = "Found successfully";
-                        return Ok(oResponse);
-                    }
+                    response.Succes = true;
+                    response.Data = car;
+                    response.Message = "Found successfully";
+                    return Ok(response);
                 }
-                
             }
-            catch (Exception ex)
-            {
-                oResponse.Message = "Serch error";
-            }
-
-            return Ok(oResponse);
+            response.Message = $"Car with id: {id} not found";
+            return NotFound(response);
         }
 
+        [HttpPut]
+        public IActionResult Update(CarRequest model)
+        {
+            var response = new Response();
 
-        private List<Car> GetAll() {
-            var cars = new List<Car>();
+            var cars = _crudHelper.GetAll();
+            if (cars == null)
+            {
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            var invalidParamsMessage = _crudHelper.ValidateParams(model);
+            if (invalidParamsMessage != string.Empty)
+            {
+                response.Message = invalidParamsMessage;
+                return BadRequest(response);
+            }
+            if (!cars.Any(car => car.Id == model.Id))
+            {
+                response.Message=$"Car with id {model.Id}not found";
+                return NotFound(response);
+            }
+
+            foreach (var car in cars)
+            {
+                if (car.Id == model.Id)
+                {
+                    car.Id = model.Id;
+                    car.Transmition = model.Transmition;
+                    car.Mark = model.Mark;
+                    car.Model = model.Model;
+                    car.Doors = model.Doors;
+                    car.Color = model.Color;
+                    response.Data = car;
+                    break;
+                }
+            }
+                      
             try
             {
-                string list = System.IO.File.ReadAllText("cars.txt");
-                cars = JsonConvert.DeserializeObject<List<Car>>(list);                
+                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                response.Succes = true;
             }
             catch (Exception ex)
             {
-                
+                response.Message = "Impossible to Update";
+                return BadRequest(response);
             }
-            return cars;
+            response.Message = "Successfully updated";
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            var response = new Response();
+
+            var cars = _crudHelper.GetAll();
+            if (cars == null)
+            {
+                response.Message = "File reading failed";
+                return BadRequest(response);
+            }
+            foreach (var aux in cars)
+            {
+                if (aux.Id == id)
+                {
+                    cars.Remove(aux);
+                    try
+                    {
+                        var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                        System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                        response.Succes = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.Message = "Impossible to Delete";
+                        return BadRequest(response);
+                    }
+                    response.Succes = true;
+                    response.Data = aux;
+                    response.Message = "Delete successfully";
+                    return Ok(response);
+                }
+            }
+            response.Message = $"Car with id: {id} not found";
+            return NotFound(response);
         }
     }
 }

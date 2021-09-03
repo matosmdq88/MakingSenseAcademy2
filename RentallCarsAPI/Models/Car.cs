@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RentallCarsAPI.Models
 {
     public class Car
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Model{ get; set; }
         public int Doors { get; set; }
         public EnumMark Mark { get; set; }
