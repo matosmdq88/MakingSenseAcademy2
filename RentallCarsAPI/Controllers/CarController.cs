@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 using RentallCarsAPI.Models;
 using RentallCarsAPI.Models.Request;
 using RentallCarsAPI.Models.Response;
+using RentallCarsAPI.Tools;
+using RentallCarsAPI.Tools.Interfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace RentallCarsAPI.Controllers
 {
@@ -13,19 +17,26 @@ namespace RentallCarsAPI.Controllers
     [ApiController]
     public class CarController : Controller
     {
-        private readonly 
-        private const string _path = "cars.txt";
+        private readonly ICrudHelper _crudHelper;
+        private readonly IConfiguration _configuration;
+
+        public CarController(ICrudHelper iCrudHelper, IConfiguration iconfiguration)
+        {
+            _crudHelper = iCrudHelper;
+            _configuration = iconfiguration;
+        }
+
         [HttpPost]
         public IActionResult Create(CarRequest model)
         {
-            var response = new Response();           
-            var cars = GetAll();
+            var response = new Response();
+            var cars = _crudHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            var invalidParamsMessage = ValidateParams(model);
+            var invalidParamsMessage = _crudHelper.ValidateParams(model);
             if (invalidParamsMessage != string.Empty)
             {
                 response.Message = invalidParamsMessage;
@@ -44,7 +55,7 @@ namespace RentallCarsAPI.Controllers
             var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
             try 
             {
-                System.IO.File.WriteAllText(_path, writer);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
                 response.Succes = true;
                 response.Data = car;
                 response.Message = "Successfully added";
@@ -62,7 +73,7 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
             
-            var cars = GetAll();
+            var cars = _crudHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
@@ -87,13 +98,13 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
 
-            var cars = GetAll();
+            var cars = _crudHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            var invalidParamsMessage = ValidateParams(model);
+            var invalidParamsMessage = _crudHelper.ValidateParams(model);
             if (invalidParamsMessage != string.Empty)
             {
                 response.Message = invalidParamsMessage;
@@ -123,7 +134,7 @@ namespace RentallCarsAPI.Controllers
             try
             {
                 var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                System.IO.File.WriteAllText(_path, writer);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
                 response.Succes = true;
             }
             catch (Exception ex)
@@ -140,7 +151,7 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
 
-            var cars = GetAll();
+            var cars = _crudHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
@@ -154,7 +165,7 @@ namespace RentallCarsAPI.Controllers
                     try
                     {
                         var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                        System.IO.File.WriteAllText(_path, writer);
+                        System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
                         response.Succes = true;
                     }
                     catch (Exception ex)
@@ -170,39 +181,6 @@ namespace RentallCarsAPI.Controllers
             }
             response.Message = $"Car with id: {id} not found";
             return NotFound(response);
-        }
-
-        private string ValidateParams(CarRequest model)
-        {
-            if (!Enum.IsDefined(typeof(EnumTransmition), model.Transmition))
-            {
-                return "Invalid transmition";
-            }
-            if (!Enum.IsDefined(typeof(EnumMark), model.Mark))
-            {
-                return "Invalid mark";
-            }
-            return string.Empty;
-        }
-        private List<Car> GetAll()
-        {
-            var cars = new List<Car>();
-            if (!System.IO.File.Exists(_path))
-            {
-                return cars;
-            }
-            try
-            {
-                var list = System.IO.File.ReadAllText(_path);
-                if (list == "")
-                    return cars;
-                else
-                    return JsonConvert.DeserializeObject<List<Car>>(list); 
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
         }
     }
 }
