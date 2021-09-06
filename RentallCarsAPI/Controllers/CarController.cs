@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RentallCarsAPI.Models;
 using RentallCarsAPI.Models.Request;
 using RentallCarsAPI.Models.Response;
-using RentallCarsAPI.Tools;
 using RentallCarsAPI.Tools.Interfaces;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
 
 namespace RentallCarsAPI.Controllers
 {
@@ -79,18 +76,16 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            foreach (var car in cars)
+
+            response.Data = cars.FirstOrDefault(car => car.Id == id);
+            if (response.Data == null)
             {
-                if (car.Id == id)
-                {
-                    response.Succes = true;
-                    response.Data = car;
-                    response.Message = "Found successfully";
-                    return Ok(response);
-                }
+                response.Message = $"Car with id: {id} not found";
+                return NotFound(response);
             }
-            response.Message = $"Car with id: {id} not found";
-            return NotFound(response);
+            response.Succes = true;
+            response.Message = "Found successfully";
+            return Ok(response);
         }
 
         [HttpPut]
@@ -137,7 +132,7 @@ namespace RentallCarsAPI.Controllers
                 System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
                 response.Succes = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.Message = "Impossible to Update";
                 return BadRequest(response);
@@ -157,11 +152,11 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            foreach (var aux in cars)
+            foreach (var car in cars)
             {
-                if (aux.Id == id)
+                if (car.Id == id)
                 {
-                    cars.Remove(aux);
+                    cars.Remove(car);
                     try
                     {
                         var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
@@ -174,7 +169,7 @@ namespace RentallCarsAPI.Controllers
                         return BadRequest(response);
                     }
                     response.Succes = true;
-                    response.Data = aux;
+                    response.Data = car;
                     response.Message = "Delete successfully";
                     return Ok(response);
                 }
