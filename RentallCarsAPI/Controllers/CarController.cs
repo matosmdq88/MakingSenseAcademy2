@@ -153,7 +153,7 @@ namespace RentallCarsAPI.Controllers
                 return BadRequest(response);
             }
 
-            var deletCar = cars.FirstOrDefault(car => car.Id == id);
+            var carToBeDeleted = cars.FirstOrDefault(car => car.Id == id);
             if (deletCar == null)
             {
                 response.Message = $"Car with id: {id} not found";
