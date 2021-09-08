@@ -152,30 +152,32 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            foreach (var car in cars)
+
+            var deletCar = cars.FirstOrDefault(car => car.Id == id);
+            if (deletCar == null)
             {
-                if (car.Id == id)
-                {
-                    cars.Remove(car);
-                    try
-                    {
-                        var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                        System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
-                        response.Succes = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        response.Message = "Impossible to Delete";
-                        return BadRequest(response);
-                    }
-                    response.Succes = true;
-                    response.Data = car;
-                    response.Message = "Delete successfully";
-                    return Ok(response);
-                }
+                response.Message = $"Car with id: {id} not found";
+                return NotFound(response);
             }
-            response.Message = $"Car with id: {id} not found";
-            return NotFound(response);
+
+            response.Succes = cars.Remove(deletCar);
+            try
+            {
+                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+            }
+
+            catch (Exception)
+            {
+                response.Succes = false;
+                response.Message = "Impossible to Delete";
+                return BadRequest(response);
+            }
+            
+            response.Data = deletCar;
+            response.Message = "Delete successfully";
+            return Ok(response);
+            
         }
     }
 }
