@@ -1,6 +1,6 @@
 ﻿namespace RentallCarsAPI.Models
 {
-    public enum EnumTransmition
+    public enum Transmition
     {
         Automatic = 0,
         Manual = 1

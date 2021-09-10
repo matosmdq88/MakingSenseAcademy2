@@ -8,21 +8,21 @@ using RentallCarsAPI.Tools.Interfaces;
 
 namespace RentallCarsAPI.Tools
 {
-    public class CrudHelper : ICrudHelper
+    public class CarHelper : ICarHelper
     {
         private readonly IConfiguration _configuration;
 
-        public CrudHelper(IConfiguration iconfiguration)
+        public CarHelper(IConfiguration iconfiguration)
         {
             _configuration = iconfiguration;
         }
         public string ValidateParams(CarRequest model)
         {
-            if (!Enum.IsDefined(typeof(EnumTransmition), model.Transmition))
+            if (!Enum.IsDefined(typeof(Transmition), model.Transmition))
             {
                 return "Invalid transmition";
             }
-            if (!Enum.IsDefined(typeof(EnumMark), model.Mark))
+            if (!Enum.IsDefined(typeof(Brand), model.Brand))
             {
                 return "Invalid mark";
             }

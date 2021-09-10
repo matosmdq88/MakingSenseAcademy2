@@ -1,6 +1,6 @@
 ﻿namespace RentallCarsAPI.Models
 {
-    public enum EnumMark
+    public enum Brand
     {
         Fiat=0,
         Ford=1,

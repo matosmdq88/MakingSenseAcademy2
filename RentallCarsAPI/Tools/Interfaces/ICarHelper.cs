@@ -4,7 +4,7 @@ using RentallCarsAPI.Models.Request;
 
 namespace RentallCarsAPI.Tools.Interfaces
 {
-    public interface ICrudHelper
+    public interface ICarHelper
     {
         public string ValidateParams(CarRequest model);
         public List<Car> GetAll();

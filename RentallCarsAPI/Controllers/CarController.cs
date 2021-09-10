@@ -14,12 +14,12 @@ namespace RentallCarsAPI.Controllers
     [ApiController]
     public class CarController : Controller
     {
-        private readonly ICrudHelper _crudHelper;
+        private readonly ICarHelper _carHelper;
         private readonly IConfiguration _configuration;
 
-        public CarController(ICrudHelper iCrudHelper, IConfiguration iconfiguration)
+        public CarController(ICarHelper iCarHelper, IConfiguration iconfiguration)
         {
-            _crudHelper = iCrudHelper;
+            _carHelper = iCarHelper;
             _configuration = iconfiguration;
         }
 
@@ -27,13 +27,13 @@ namespace RentallCarsAPI.Controllers
         public IActionResult Create(CarRequest model)
         {
             var response = new Response();
-            var cars = _crudHelper.GetAll();
+            var cars = _carHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            var invalidParamsMessage = _crudHelper.ValidateParams(model);
+            var invalidParamsMessage = _carHelper.ValidateParams(model);
             if (invalidParamsMessage != string.Empty)
             {
                 response.Message = invalidParamsMessage;
@@ -43,7 +43,7 @@ namespace RentallCarsAPI.Controllers
             {
                 Id = Guid.NewGuid(),
                 Transmition = model.Transmition,
-                Mark = model.Mark,
+                Brand = model.Brand,
                 Model = model.Model,
                 Doors = model.Doors,
                 Color = model.Color,
@@ -70,7 +70,7 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
             
-            var cars = _crudHelper.GetAll();
+            var cars = _carHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
@@ -93,13 +93,13 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
 
-            var cars = _crudHelper.GetAll();
+            var cars = _carHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            var invalidParamsMessage = _crudHelper.ValidateParams(model);
+            var invalidParamsMessage = _carHelper.ValidateParams(model);
             if (invalidParamsMessage != string.Empty)
             {
                 response.Message = invalidParamsMessage;
@@ -117,7 +117,7 @@ namespace RentallCarsAPI.Controllers
                 {
                     car.Id = model.Id;
                     car.Transmition = model.Transmition;
-                    car.Mark = model.Mark;
+                    car.Brand = model.Brand;
                     car.Model = model.Model;
                     car.Doors = model.Doors;
                     car.Color = model.Color;
@@ -146,7 +146,7 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
 
-            var cars = _crudHelper.GetAll();
+            var cars = _carHelper.GetAll();
             if (cars == null)
             {
                 response.Message = "File reading failed";
