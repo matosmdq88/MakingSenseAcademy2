@@ -154,13 +154,13 @@ namespace RentallCarsAPI.Controllers
             }
 
             var carToBeDeleted = cars.FirstOrDefault(car => car.Id == id);
-            if (deletCar == null)
+            if (carToBeDeleted == null)
             {
                 response.Message = $"Car with id: {id} not found";
                 return NotFound(response);
             }
 
-            response.Succes = cars.Remove(deletCar);
+            response.Succes = cars.Remove(carToBeDeleted);
             try
             {
                 var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
@@ -174,10 +174,9 @@ namespace RentallCarsAPI.Controllers
                 return BadRequest(response);
             }
             
-            response.Data = deletCar;
+            response.Data = carToBeDeleted;
             response.Message = "Delete successfully";
             return Ok(response);
-            
         }
     }
 }
