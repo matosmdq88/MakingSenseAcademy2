@@ -52,7 +52,7 @@ namespace RentallCarsAPI.Controllers
             var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
             try 
             {
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathcars"), writer);
                 response.Succes = true;
                 response.Data = car;
                 response.Message = "Successfully added";
@@ -129,7 +129,7 @@ namespace RentallCarsAPI.Controllers
             try
             {
                 var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathcars"), writer);
                 response.Succes = true;
             }
             catch (Exception)
@@ -164,7 +164,7 @@ namespace RentallCarsAPI.Controllers
             try
             {
                 var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_path"), writer);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathcars"), writer);
             }
 
             catch (Exception)
