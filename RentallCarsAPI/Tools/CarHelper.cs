@@ -43,7 +43,7 @@ namespace RentallCarsAPI.Tools
                 else
                     return JsonConvert.DeserializeObject<List<Car>>(list);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

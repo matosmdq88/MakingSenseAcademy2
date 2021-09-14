@@ -57,7 +57,7 @@ namespace RentallCarsAPI.Controllers
                 response.Data = car;
                 response.Message = "Successfully added";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.Message = "Impossible to add";
                 return BadRequest(response);
