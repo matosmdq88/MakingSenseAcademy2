@@ -14,6 +14,6 @@ namespace RentallCarsAPI.Models.Request
         public string Address { get; set; }
         public string City { get; set; }
         public string Province { get; set; }
-        public int PostalCode { get; set; }
+        public short PostalCode { get; set; }
     }
 }
