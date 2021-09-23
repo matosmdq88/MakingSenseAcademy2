@@ -28,7 +28,7 @@ namespace RentallCarsAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(ClientRequest model)
+        public IActionResult Create(ClientRequest clientRequest)
         {
             var response = new Response();
             var clients = _clientHelper.GetAll();
@@ -38,7 +38,7 @@ namespace RentallCarsAPI.Controllers
                 return BadRequest(response);
             }
 
-            if (_clientHelper.ValidateDni(model))
+            if (_clientHelper.ValidateDni(clientRequest))
             {
                 response.Message="Dni is already used";
                 return BadRequest(response);
@@ -46,14 +46,14 @@ namespace RentallCarsAPI.Controllers
 
             var newClient = new Client
             {
-                Dni = model.Dni,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Phone = model.Phone, 
-                Address = model.Address,
-                City = model.City,
-                Province = model.Province,
-                PostalCode =model.PostalCode,
+                Dni = clientRequest.Dni,
+                FirstName = clientRequest.FirstName,
+                LastName = clientRequest.LastName,
+                Phone = clientRequest.Phone, 
+                Address = clientRequest.Address,
+                City = clientRequest.City,
+                Province = clientRequest.Province,
+                PostalCode = clientRequest.PostalCode,
                 LastModification = DateTime.Now
             };
             clients.Add(newClient);
@@ -97,7 +97,7 @@ namespace RentallCarsAPI.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update(ClientRequest model)
+        public IActionResult Update(ClientRequest clientRequest)
         {
             var response = new Response();
 
@@ -107,7 +107,7 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "File reading failed";
                 return BadRequest(response);
             }
-            var isClientDni = _clientHelper.ValidateDni(model);
+            var isClientDni = _clientHelper.ValidateDni(clientRequest);
             if (!isClientDni)
             {
                 response.Message = "Invalid DNI to update";
@@ -116,16 +116,16 @@ namespace RentallCarsAPI.Controllers
             
             foreach (var client in clients)
             {
-                if (client.Dni == model.Dni)
+                if (client.Dni == clientRequest.Dni)
                 {
-                    client.Dni = model.Dni;
-                    client.FirstName = model.FirstName;
-                    client.LastName = model.LastName;
-                    client.Phone = model.Phone;
-                    client.Address = model.Address;
-                    client.City = model.City;
-                    client.Province = model.Province;
-                    client.PostalCode = model.PostalCode;
+                    client.Dni = clientRequest.Dni;
+                    client.FirstName = clientRequest.FirstName;
+                    client.LastName = clientRequest.LastName;
+                    client.Phone = clientRequest.Phone;
+                    client.Address = clientRequest.Address;
+                    client.City = clientRequest.City;
+                    client.Province = clientRequest.Province;
+                    client.PostalCode = clientRequest.PostalCode;
                     client.LastModification = DateTime.Now;
                     response.Data = client;
                     break;
