@@ -47,7 +47,7 @@ namespace RentallCarsAPI.Controllers
                 Model = model.Model,
                 Doors = model.Doors,
                 Color = model.Color,
-                isFree = true
+                IsFree = true
             };
             cars.Add(car);
             var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
@@ -122,7 +122,7 @@ namespace RentallCarsAPI.Controllers
                     car.Model = model.Model;
                     car.Doors = model.Doors;
                     car.Color = model.Color;
-                    car.isFree = model.isFree;
+                    car.IsFree = model.IsFree;
                     response.Data = car;
                     break;
                 }

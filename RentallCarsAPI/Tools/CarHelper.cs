@@ -54,9 +54,10 @@ namespace RentallCarsAPI.Tools
         {
             var cars = GetAll();
             if (cars == null)
+            {
                 return null;
-            else
-                return cars.FirstOrDefault(car => car.Id == id);
+            }
+            return cars.FirstOrDefault(car => car.Id == id);
         }
     }
 }

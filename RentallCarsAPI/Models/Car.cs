@@ -10,6 +10,6 @@ namespace RentallCarsAPI.Models
         public Brand Brand { get; set; }
         public string Color { get; set; }
         public Transmition Transmition { get; set; }
-        public bool isFree { get; set; }
+        public bool IsFree { get; set; }
     }
 }

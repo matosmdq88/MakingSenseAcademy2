@@ -11,6 +11,6 @@ namespace RentallCarsAPI.Tools.Interfaces
     {
         public bool ValidateDni(ClientRequest model);
         public List<Client> GetAll();
-        public Client GetByDni(int Dni);
+        public Client GetByDni(int dni);
     }
 }

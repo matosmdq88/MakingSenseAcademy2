@@ -41,22 +41,23 @@ namespace RentallCarsAPI.Tools
             }
         }
 
-        public Client GetByDni(int Dni)
+        public Client GetByDni(int dni)
         {
             var clients = GetAll();
             if (clients == null)
                 return null;
             else
-                return clients.FirstOrDefault(client => client.Dni == Dni);
+                return clients.FirstOrDefault(client => client.Dni == dni);
         }
 
         public bool ValidateDni(ClientRequest model)
         {
             var clients = GetAll();
             if (clients == null)
+            {
                 return false;
-            else
-                return clients.Any(client => client.Dni == model.Dni);
+            }
+            return clients.Any(client => client.Dni == model.Dni);
         }
     }
 }
