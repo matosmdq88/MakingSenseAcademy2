@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RentallCarsAPI.Models;
@@ -47,6 +48,15 @@ namespace RentallCarsAPI.Tools
             {
                 return null;
             }
+        }
+
+        public Car GetById(Guid id)
+        {
+            var cars = GetAll();
+            if (cars == null)
+                return null;
+            else
+                return cars.FirstOrDefault(car => car.Id == id);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace RentallCarsAPI
             services.AddControllers();
             services.AddScoped<ICarHelper, CarHelper>();
             services.AddScoped<IClientHelper, ClientHelper>();
+            services.AddScoped<IRentalHelper, RentalHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
