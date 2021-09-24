@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -67,7 +68,7 @@ namespace RentallCarsAPI.Controllers
             catch
             {
                 _rentalHelper.UpdateIsFree(rental.Car.Id, true);
-                return BadRequest(new Response{Message = "Imposible to add"});
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
     }
