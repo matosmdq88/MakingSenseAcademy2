@@ -52,5 +52,28 @@ namespace RentallCarsAPI.Tools
                 return null;
             }
         }
+        public string UpdateIsFree(Guid idCar, bool condition)
+        {
+            var cars = _carHelper.GetAll();
+            foreach (var car in cars)
+            {
+                if (car.Id == idCar)
+                {
+                    car.IsFree = condition;
+                    break;
+                }
+            }
+
+            try
+            {
+                var writer = JsonConvert.SerializeObject(cars, Formatting.Indented);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathcars"), writer);
+                return string.Empty;
+            }
+            catch (Exception)
+            {
+                return "Error while update car";
+            }
+        }
     }
 }

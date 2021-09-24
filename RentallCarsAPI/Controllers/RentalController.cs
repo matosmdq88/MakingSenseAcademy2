@@ -25,33 +25,29 @@ namespace RentallCarsAPI.Controllers
         [HttpPost]
         public IActionResult Create(RentalRequest rentalRequest)
         {
-            var response = new Response();
             var rentals = _rentalHelper.GetAll();
             var car = _rentalHelper.GetCar(rentalRequest.Car);
             if (car == null)
             {
-                response.Message = "Car not found";
-                return NotFound(response);
+                return NotFound(new Response { Message = "Car not found"});
             }
 
             if (!car.IsFree)
             {
-                response.Message = "Car is used";
-                return BadRequest(response);
+                return BadRequest(new Response { Message = "Car is used" });
             }
 
             var client = _rentalHelper.GetClient(rentalRequest.Client);
             if (client == null)
             {
-                response.Message = "Client not found";
-                return NotFound(response);
+                return NotFound(new Response { Message = "Client not found" });
             }
 
             var rental = new Rental
             {
                 Id = Guid.NewGuid(),
                 Client = client,
-                Car=car,
+                Car = car,
                 StartRental = DateTime.Now,
                 RentalDays = rentalRequest.RentalDays
             };
@@ -60,18 +56,19 @@ namespace RentallCarsAPI.Controllers
             var writer = JsonConvert.SerializeObject(rentals, Formatting.Indented);
             try
             {
+                var updateCar = _rentalHelper.UpdateIsFree(rental.Car.Id,false);
+                if (updateCar != "")
+                {
+                    return BadRequest(new Response {Message = updateCar});
+                }
                 System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathrentals"), writer);
-                response.Succes = true;
-                response.Data = rental;
-                response.Message = "Successfully added";
+                return Ok(new Response{Data = rental,Message = "Successfully added",Succes = true});
             }
             catch
             {
-                response.Message = "Imposible to add";
-                return BadRequest(response);
+                _rentalHelper.UpdateIsFree(rental.Car.Id, true);
+                return BadRequest(new Response{Message = "Imposible to add"});
             }
-
-            return Ok(response);
         }
     }
 }
