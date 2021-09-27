@@ -71,5 +71,34 @@ namespace RentallCarsAPI.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
+
+        public IActionResult GetAll()
+        {
+            var rentals = _rentalHelper.GetAll();
+            if (rentals == null)
+            {
+                return StatusCode((int) HttpStatusCode.InternalServerError);
+            }
+
+            if (rentals.Count == 0)
+            {
+                var response = new Response{Message = "List Empty"};
+                return NotFound();
+            }
+            else
+            {
+                var response = new Response {Data = rentals, Message = "List OK", Succes = true};
+                return Ok(response);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(Guid id)
+        {
+            var rental = _rentalHelper.GetById(id);
+            if (rental == null)
+                return BadRequest(new Response {Message = "Rental not found"});
+            return Ok(new Response{Data = rental,Message = "Rental found successfuly",Succes = true});
+        }
     }
 }

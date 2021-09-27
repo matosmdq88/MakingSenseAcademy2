@@ -12,5 +12,6 @@ namespace RentallCarsAPI.Tools.Interfaces
         public Client GetClient(int dni);
         public List<Rental> GetAll();
         public string UpdateIsFree(Guid idCar, bool condition);
+        public Rental GetById(Guid id);
     }
 }
