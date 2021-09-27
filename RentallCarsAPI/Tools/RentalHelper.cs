@@ -44,8 +44,7 @@ namespace RentallCarsAPI.Tools
                 var list = System.IO.File.ReadAllText(_configuration.GetValue<string>("MySettings:_pathrentals"));
                 if (list == "")
                     return rentals;
-                else
-                    return JsonConvert.DeserializeObject<List<Rental>>(list);
+                return JsonConvert.DeserializeObject<List<Rental>>(list);
             }
             catch (Exception)
             {
@@ -74,6 +73,17 @@ namespace RentallCarsAPI.Tools
             {
                 return "Error while update car";
             }
+        }
+
+        public Rental GetById(Guid id)
+        {
+            var rentals = GetAll();
+            if (rentals==null)
+            {
+                return null;
+            }
+
+            return rentals.FirstOrDefault(rental => rental.Id == id);
         }
     }
 }
