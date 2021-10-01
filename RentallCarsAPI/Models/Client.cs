@@ -8,6 +8,7 @@ namespace RentallCarsAPI.Models
 {
     public class Client
     {
+        public Guid Id { get; set; }
         public int Dni { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -17,5 +18,6 @@ namespace RentallCarsAPI.Models
         public string Province { get; set; }
         public short PostalCode { get; set; }
         public DateTime LastModification { get; set; }
+        public bool Available { get; set; }
     }
 }

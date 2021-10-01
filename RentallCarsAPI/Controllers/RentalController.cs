@@ -54,24 +54,15 @@ namespace RentallCarsAPI.Controllers
             };
             
             rentals.Add(rental);
-            var writer = JsonConvert.SerializeObject(rentals, Formatting.Indented);
-            try
+            if (_rentalHelper.SaveRental(rentals) != "")
             {
-                var updateCar = _rentalHelper.UpdateIsFree(rental.Car.Id,false);
-                if (updateCar != "")
-                {
-                    return BadRequest(new Response {Message = updateCar});
-                }
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathrentals"), writer);
-                return Ok(new Response{Data = rental,Message = "Successfully added",Succes = true});
-            }
-            catch
-            {
-                _rentalHelper.UpdateIsFree(rental.Car.Id, true);
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
+            var response = new Response { Data = rental, Message = "Successfully saved", Succes = true };
+            return Ok(response);
         }
 
+        [HttpGet]
         public IActionResult GetAll()
         {
             var rentals = _rentalHelper.GetAll();
@@ -99,6 +90,34 @@ namespace RentallCarsAPI.Controllers
             if (rental == null)
                 return BadRequest(new Response {Message = "Rental not found"});
             return Ok(new Response{Data = rental,Message = "Rental found successfuly",Succes = true});
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult EndRental(Guid id)
+        {
+            var rental = _rentalHelper.GetById(id);
+            if (rental == null)
+            {
+                return NotFound(new Response {Message = "Rental not found"});
+            }
+            rental.FinishRental=DateTime.Now;
+            rental.Penalisation = (rental.FinishRental.Day - rental.StartRental.Day - rental.RentalDays)*2000;
+            var rentals = _rentalHelper.GetAll();
+            foreach (var rentCar in rentals)
+            {
+                if (rentCar.Id == rental.Id)
+                {
+                    rentCar.Penalisation = rental.Penalisation;
+                    rentCar.FinishRental = rental.FinishRental;
+                    break;
+                }
+            }
+            if (_rentalHelper.SaveRental(rentals) != "")
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+            var response = new Response { Data = rental, Message = "Successfully saved",Succes = true};
+            return Ok(response);
         }
     }
 }

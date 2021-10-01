@@ -14,12 +14,14 @@ namespace RentallCarsAPI.Tools
         private readonly IConfiguration _configuration;
         private readonly IClientHelper _clientHelper;
         private readonly ICarHelper _carHelper;
+        private readonly MyDbContext _context;
 
-        public RentalHelper(IConfiguration configuration, ICarHelper carHelper, IClientHelper clientHelper)
+        public RentalHelper(IConfiguration configuration, ICarHelper carHelper, IClientHelper clientHelper,MyDbContext context)
         {
             _configuration = configuration;
             _clientHelper = clientHelper;
             _carHelper = carHelper;
+            _context = context;
         }
 
         public Car GetCar(Guid idCar)
@@ -84,6 +86,20 @@ namespace RentallCarsAPI.Tools
             }
 
             return rentals.FirstOrDefault(rental => rental.Id == id);
+        }
+
+        public string SaveRental(List<Rental> rentals)
+        {
+            try
+            {
+                var writer = JsonConvert.SerializeObject(rentals, Formatting.Indented);
+                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathrentals"), writer);
+                return string.Empty;
+            }
+            catch (Exception)
+            {
+                return "Error while update rental";
+            }
         }
     }
 }

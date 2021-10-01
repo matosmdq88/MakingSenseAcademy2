@@ -34,7 +34,7 @@ namespace RentallCarsAPI.Controllers
             var clients = _clientHelper.GetAll();
             if (clients == null)
             {
-                response.Message = "File reading failed";
+                response.Message = "File reading DB";
                 return BadRequest(response);
             }
 
@@ -46,6 +46,7 @@ namespace RentallCarsAPI.Controllers
 
             var newClient = new Client
             {
+                Id = Guid.NewGuid(),
                 Dni = clientRequest.Dni,
                 FirstName = clientRequest.FirstName,
                 LastName = clientRequest.LastName,
@@ -54,13 +55,13 @@ namespace RentallCarsAPI.Controllers
                 City = clientRequest.City,
                 Province = clientRequest.Province,
                 PostalCode = clientRequest.PostalCode,
-                LastModification = DateTime.Now
+                LastModification = DateTime.Now,
+                Available = true
             };
-            clients.Add(newClient);
-            var writer = JsonConvert.SerializeObject(clients, Formatting.Indented);
+            
             try
             {
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathclients"), writer);
+                _clientHelper.Add(newClient);
                 response.Succes = true;
                 response.Data = newClient;
                 response.Message = "Successfully added";
@@ -101,8 +102,8 @@ namespace RentallCarsAPI.Controllers
         {
             var response = new Response();
 
-            var clients = _clientHelper.GetAll();
-            if (clients == null)
+            var client = _clientHelper.GetByDni(clientRequest.Dni);
+            if (client == null)
             {
                 response.Message = "File reading failed";
                 return BadRequest(response);
@@ -113,29 +114,22 @@ namespace RentallCarsAPI.Controllers
                 response.Message = "Invalid DNI to update";
                 return BadRequest(response);
             }
-            
-            foreach (var client in clients)
-            {
-                if (client.Dni == clientRequest.Dni)
-                {
-                    client.Dni = clientRequest.Dni;
-                    client.FirstName = clientRequest.FirstName;
-                    client.LastName = clientRequest.LastName;
-                    client.Phone = clientRequest.Phone;
-                    client.Address = clientRequest.Address;
-                    client.City = clientRequest.City;
-                    client.Province = clientRequest.Province;
-                    client.PostalCode = clientRequest.PostalCode;
-                    client.LastModification = DateTime.Now;
-                    response.Data = client;
-                    break;
-                }
-            }
+
+            client.Dni = clientRequest.Dni;
+            client.FirstName = clientRequest.FirstName;
+            client.LastName = clientRequest.LastName;
+            client.Phone = clientRequest.Phone;
+            client.Address = clientRequest.Address;
+            client.City = clientRequest.City;
+            client.Province = clientRequest.Province;
+            client.PostalCode = clientRequest.PostalCode;
+            client.LastModification = DateTime.Now;
+            client.Available = clientRequest.Available;
+            response.Data = client;
 
             try
             {
-                var writer = JsonConvert.SerializeObject(clients, Formatting.Indented);
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathclients"), writer);
+                _clientHelper.Update(client);
                 response.Succes = true;
             }
             catch (Exception)
@@ -148,29 +142,21 @@ namespace RentallCarsAPI.Controllers
         }
 
         [HttpDelete("{Dni}")]
-        public IActionResult Delete(int Dni)
+        public IActionResult Delete(int dni)
         {
             var response = new Response();
 
-            var clients = _clientHelper.GetAll();
-            if (clients == null)
+            var client = _clientHelper.GetByDni(dni);
+            if (client == null)
             {
-                response.Message = "File reading failed";
-                return BadRequest(response);
-            }
-
-            var clientToDelete = clients.FirstOrDefault(client => client.Dni == Dni);
-            if (clientToDelete == null)
-            {
-                response.Message = $"Car with id: {Dni} not found";
+                response.Message = $"Car with id: {dni} not found";
                 return NotFound(response);
             }
 
-            response.Succes = clients.Remove(clientToDelete);
             try
             {
-                var writer = JsonConvert.SerializeObject(clients, Formatting.Indented);
-                System.IO.File.WriteAllText(_configuration.GetValue<string>("MySettings:_pathclients"), writer);
+                client.Available = false;
+                _clientHelper.Delete(client);
             }
 
             catch (Exception)
@@ -180,7 +166,7 @@ namespace RentallCarsAPI.Controllers
                 return BadRequest(response);
             }
 
-            response.Data = clientToDelete;
+            response.Data = client;
             response.Message = "Delete successfully";
             return Ok(response);
         }

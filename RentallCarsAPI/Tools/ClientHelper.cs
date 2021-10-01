@@ -12,42 +12,27 @@ namespace RentallCarsAPI.Tools
     public class ClientHelper : IClientHelper
     {
         private readonly IConfiguration _configuration;
+        private readonly MyDbContext _context;
 
-        public ClientHelper(IConfiguration iconfiguration)
+        public ClientHelper(IConfiguration iconfiguration,MyDbContext context)
         {
             _configuration = iconfiguration;
+            _context = context;
         }
         public List<Client> GetAll()
         {
-            var clients = new List<Client>();
-            if (!System.IO.File.Exists(_configuration.GetValue<string>("MySettings:_pathclients")))
-            {
-                return clients;
-            }
-            try
-            {
-                var list = System.IO.File.ReadAllText(_configuration.GetValue<string>("MySettings:_pathclients"));
-                if (list == "")
-                    return clients;
-                else
-                {
-                    clients= JsonConvert.DeserializeObject<List<Client>>(list);
-                    return clients.OrderBy(c => c.Dni).ToList();
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return _context.Client.ToList();
+        }
+
+        public void Add(Client client)
+        {
+            _context.Client.Add(client);
+            _context.SaveChanges();
         }
 
         public Client GetByDni(int dni)
         {
-            var clients = GetAll();
-            if (clients == null)
-                return null;
-            else
-                return clients.FirstOrDefault(client => client.Dni == dni);
+            return _context.Client.FirstOrDefault(c => c.Dni==dni);
         }
 
         public bool ValidateDni(ClientRequest model)
@@ -58,6 +43,18 @@ namespace RentallCarsAPI.Tools
                 return false;
             }
             return clients.Any(client => client.Dni == model.Dni);
+        }
+
+        public void Update(Client client)
+        {
+            _context.Client.Update(client);
+            _context.SaveChanges();
+        }
+
+        public void Delete(Client client)
+        {
+            _context.Update(client);
+            _context.SaveChanges();
         }
     }
 }

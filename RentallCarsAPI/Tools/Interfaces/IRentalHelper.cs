@@ -13,5 +13,6 @@ namespace RentallCarsAPI.Tools.Interfaces
         public List<Rental> GetAll();
         public string UpdateIsFree(Guid idCar, bool condition);
         public Rental GetById(Guid id);
+        public string SaveRental(List<Rental> rentals);
     }
 }

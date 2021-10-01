@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RentallCarsAPI.Models;
 using RentallCarsAPI.Tools;
 using RentallCarsAPI.Tools.Interfaces;
 
@@ -24,6 +26,7 @@ namespace RentallCarsAPI
             services.AddScoped<ICarHelper, CarHelper>();
             services.AddScoped<IClientHelper, ClientHelper>();
             services.AddScoped<IRentalHelper, RentalHelper>();
+            services.AddDbContext<MyDbContext>(options=>options.UseSqlServer(Configuration.GetValue<string>("MySettings:_connection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
